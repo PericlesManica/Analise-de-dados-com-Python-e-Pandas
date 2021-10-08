@@ -1,0 +1,138 @@
+#Importando as bibliotecas.
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.style.use('seaborn')
+
+#Upload do arquivo.
+from google.colab import files
+arq = files. upload()
+
+#Criando o dataframe.
+df = pd.read_excel('AdventureWorks.xlsx')
+
+#Visualizando as 5 primeiras linhas.
+df.head()
+
+#Quantidade de linhas e colunas.
+df.shape
+
+#Verificando tipos de dados.
+df.dtypes
+
+#Receita total.
+df['Valor Venda'].sum()
+
+#Custo por venda.
+df['custo'] = df['Custo Unitário'].mul(df['Quantidade'])
+
+#Listando as primeiras linhas.
+df.head()
+
+#Aredondando o custo total.
+round(df['custo'].sum(),2)
+
+#lucro por venda.
+df['lucro'] = df['Valor Venda'] - df['custo']
+
+#Total de lucro.
+round(df['lucro'].sum(), 2)
+
+#Criando a coluna tempo de envio.
+df['Tempo_envio'] = df['Data Envio'] - df['Data Venda']
+
+#Verificando a criação da coluna.
+df.head()
+
+#Transformando a coluna Tempo_envio de string para inteiro.
+df['Tempo_envio'] = (df['Data Envio'] - df['Data Venda']).dt.days
+
+#Média do tempo de envio por marca.
+df.groupby('Marca')['Tempo_envio'].mean()
+
+#Verificando se existem valores nulos.
+df.isnull().sum()
+
+#Agrupando por ano e marca.
+df.groupby([df['Data Venda'].dt.year, 'Marca'])['lucro'].sum()
+
+#Formatando o tipos float para 2 casas decimais
+pd.options.display.float_format = '{:20,.2f}'.format
+
+#Resetando o index, apresenta os dados com um indice numérico e todos os campos prenchidos.
+lucro_ano = df.groupby([df['Data Venda'].dt.year, 'Marca'])['lucro'].sum().reset_index()
+lucro_ano
+
+#Total de produtos vendidos.
+df.groupby('Produto')['Quantidade'].sum().sort_values(ascending=False)
+
+#Grafico total de produtos vendidos.
+df.groupby('Produto')['Quantidade'].sum().sort_values(ascending=True).plot.barh(title='Total produtos vendidos')
+plt.xlabel('Total')
+plt.ylabel('Produto')
+plt.legend()
+plt.savefig('Total produtos vendidos.png');
+
+#Gráfico lucro por ano.
+df.groupby(df['Data Venda'].dt.year)['lucro'].sum().plot.bar(title='Lucro x Ano')
+plt.xlabel('Ano')
+plt.ylabel('Receita')
+plt.legend()
+plt.savefig('Lucro x Ano.png');
+
+#Lucro por ano.
+df.groupby(df['Data Venda'].dt.year)['lucro'].sum()
+
+#Vendas do ano de 2009.
+df_2009 = df[df['Data Venda'].dt.year == 2009]
+
+#Exibindo a variável.
+df_2009.head()
+
+#Grafico Lucro x Mês.
+df_2009.groupby(df_2009['Data Venda'].dt.month)['lucro'].sum().plot(title='Lucro x Mês')
+plt.xlabel('Mês')
+plt.ylabel('Lucro')
+plt.legend()
+plt.savefig('Lucro x Mês.png');
+
+#Gráfico Lucro x Marca.
+df_2009.groupby('Marca')['lucro'].sum().plot.bar(title='Lucro x Marca')
+plt.xlabel('Marca')
+plt.ylabel('Lucro')
+plt.xticks(rotation='horizontal')
+plt.legend()
+plt.savefig('Lucro x Marca.png');
+
+#Gráfico Lucro x Classe.
+df_2009.groupby('Classe')['lucro'].sum().plot.bar(title='Lucro x Classe')
+plt.xlabel('Classe')
+plt.ylabel('Lucro')
+plt.xticks(rotation='horizontal')
+plt.legend()
+plt.savefig('Lucro x Classe.png');
+
+#Estatisticas do tempo de envio.
+df['Tempo_envio'].describe()
+
+#Gráfico Boxplot
+plt.boxplot(df['Tempo_envio'])
+plt.savefig('Boxplot tempo de envio.png');
+
+#Histograma
+plt.hist(df['Tempo_envio'])
+plt.legend()
+plt.savefig('Histograma tempo de envio.png');
+
+#Tempo mínimo de envio.
+df['Tempo_envio'].min()
+
+#Tempo máximo  de envio.
+df['Tempo_envio'].max()
+
+#Identificando o outlier.
+df[df['Tempo_envio'] == 20]
+
+#Salvando o data frame em CSV
+df.to_csv('df_vendas_novo.csv', index=False)
+
+
